@@ -1,9 +1,5 @@
 # RFSA-Tool
-<<<<<<< HEAD
-RFSA-Tool
 
-=======
->>>>>>> 6bdfd87 (Update README.md)
 Router-Firmware-Security-Analysis
 
 A router firmware security analysis tool that analize routers for possibe exploitable vulnarabilities present.
