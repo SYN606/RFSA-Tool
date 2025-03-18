@@ -2,7 +2,7 @@
 
 Router-Firmware-Security-Analysis
 
-A router firmware security analysis tool that analize routers for possibe exploitable vulnarabilities present.
+A router firmware security analysis tool that analyse routers for possibe exploitable vulnarabilities present.
 
 # Features
 
