@@ -30,5 +30,4 @@ fi
 
 # Run the script with sudo while preserving the environment
 echo "[+] Running main.py with sudo..."
-sudo -E "$PYTHON" main.py
-
+sudo bash -c "source venv/bin/activate && python3 main.py"
