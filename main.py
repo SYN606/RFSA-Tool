@@ -1,10 +1,23 @@
 import os 
 import sys
-import requests
-import scapy
+import argparse
 from colorama import Fore, Style, init
 
-import argparse
+# Initialize Colorama
+init(autoreset=True)
+
+ROOT_DIR = "functions"
+
+def load_function(module_name):
+    try:
+        module_path = os.path.join(ROOT_DIR, f"{module_name}.py")
+        if not os.path.exists(module_path):
+            print(Fore.RED + f"[ERROR] Function {module_name} not found in {ROOT_DIR}/")
+            return
+        
+        exec(open(module_path).read())
+    except Exception as e:
+        print(Fore.RED + f"[ERROR] Failed to execute {module_name}: {e}")
 
 def display_help():
     """Displays help information about the tool"""
@@ -49,9 +62,6 @@ if args.help_module:
     display_help()
     exit()
 
-if args.help_module:
-    display_help()
-
 RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
@@ -59,8 +69,8 @@ BLUE = "\033[94m"
 CYAN = "\033[96m"
 RESET = "\033[0m"  # Resets color to default
 
-def banner () :
-    print( Fore.RED + Style.BRIGHT + r'''
+def banner():
+    print(Fore.RED + Style.BRIGHT + r'''
     ____          ______        _____         ___ 
    / __ \        / ____/       / ___/        /   |
   / /_/ /       / /_           \__ \        / /| |
@@ -69,14 +79,12 @@ def banner () :
 
 ROUTER      FIRMWARE        SECURITY        ANALYSIS
 
-
-                                          
 '''+ Style.RESET_ALL)
 
 def main():
     banner()
     while True:  # Infinite loop until user exits
-        cmd = input(Fore.YELLOW + Style.BRIGHT +"Router Exploit Tool> "+Style.RESET_ALL).strip().lower()
+        cmd = input(Fore.YELLOW + Style.BRIGHT + "Router Exploit Tool> " + Style.RESET_ALL).strip().lower()
 
         if cmd == "exit":
             print("Exiting...")
@@ -84,15 +92,21 @@ def main():
 
         elif cmd == "help":
             display_help()
+        
         elif cmd == "scan":
-            print("[+] Scanning for vulnerable routers...")
-
-        elif cmd == "exploit":
-            print("[+] Exploiting the target...")
-
+            load_function("scan")
+        
+        elif cmd == "bruteforce":
+            load_function("bruteforce")
+        
+        elif cmd == "mitm":
+            load_function("mitm")
+        
+        elif cmd == "dns":
+            load_function("dns")
+        
         else:
             print("[-] Unknown command. Type 'help' for available commands.")
 
 if __name__ == "__main__":
     main()
-
