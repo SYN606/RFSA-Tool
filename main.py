@@ -1,31 +1,51 @@
-import os 
+import os
 import sys
 import argparse
+import importlib.util
 from colorama import Fore, Style, init
 
-# Initialize Colorama
+# Initialize Colorama for colored output
 init(autoreset=True)
 
 ROOT_DIR = "functions"
 
+
 def load_function(module_name):
+    """Dynamically loads and executes a function from the functions directory."""
     try:
         module_path = os.path.join(ROOT_DIR, f"{module_name}.py")
+
         if not os.path.exists(module_path):
-            print(Fore.RED + f"[ERROR] Function {module_name} not found in {ROOT_DIR}/")
+            print(Fore.RED +
+                  f"[ERROR] Function {module_name} not found in {ROOT_DIR}/")
             return
-        
-        exec(open(module_path).read())
+
+        # Load the module dynamically
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
+        module = importlib.util.module_from_spec(spec)  # type: ignore
+        spec.loader.exec_module(module)  # type: ignore
+
+        # Check if the function exists and execute it
+        if hasattr(module, module_name):
+            print(Fore.GREEN + f"[+] Running {module_name}...")
+            getattr(module, module_name)()  # Calls scan(), bruteforce(), etc.
+        else:
+            print(
+                Fore.RED +
+                f"[ERROR] Function {module_name} not found in {module_name}.py"
+            )
+
     except Exception as e:
         print(Fore.RED + f"[ERROR] Failed to execute {module_name}: {e}")
 
+
 def display_help():
-    """Displays help information about the tool"""
+    """Displays help information about the tool."""
     help_text = """
     Router Exploit Tool - A Python-based tool for router penetration testing.
     
     Usage:
-        python exploit_tool.py [options]
+        python main.py [options]
 
     Options:
         -s, --scan          Scan the network for available routers.
@@ -45,16 +65,37 @@ def display_help():
     """
     print(help_text)
 
+
 # Argument parser setup
-parser = argparse.ArgumentParser(description="Router Exploit Tool - Ethical Hacking Utility")
-parser.add_argument("-s", "--scan", help="Scan the network for routers", action="store_true")
-parser.add_argument("-b", "--bruteforce", help="Perform brute-force attack", action="store_true")
-parser.add_argument("-m", "--mitm", help="Launch a Man-in-the-Middle attack", action="store_true")
-parser.add_argument("-d", "--dns", help="Perform DNS spoofing", action="store_true")
+parser = argparse.ArgumentParser(
+    description="Router Exploit Tool - Ethical Hacking Utility")
+parser.add_argument("-s",
+                    "--scan",
+                    help="Scan the network for routers",
+                    action="store_true")
+parser.add_argument("-b",
+                    "--bruteforce",
+                    help="Perform brute-force attack",
+                    action="store_true")
+parser.add_argument("-m",
+                    "--mitm",
+                    help="Launch a Man-in-the-Middle attack",
+                    action="store_true")
+parser.add_argument("-d",
+                    "--dns",
+                    help="Perform DNS spoofing",
+                    action="store_true")
 parser.add_argument("-t", "--target", help="Specify target router IP")
-parser.add_argument("-v", "--victim", help="Specify victim IP (for MITM attack)")
-parser.add_argument("-g", "--gateway", help="Specify gateway IP (for MITM attack)")
-parser.add_argument("-H", "--help-module", help="Display help information", action="store_true")
+parser.add_argument("-v",
+                    "--victim",
+                    help="Specify victim IP (for MITM attack)")
+parser.add_argument("-g",
+                    "--gateway",
+                    help="Specify gateway IP (for MITM attack)")
+parser.add_argument("-H",
+                    "--help-module",
+                    help="Display help information",
+                    action="store_true")
 
 args = parser.parse_args()
 
@@ -69,6 +110,7 @@ BLUE = "\033[94m"
 CYAN = "\033[96m"
 RESET = "\033[0m"  # Resets color to default
 
+
 def banner():
     print(Fore.RED + Style.BRIGHT + r'''
     ____          ______        _____         ___ 
@@ -79,34 +121,38 @@ def banner():
 
 ROUTER      FIRMWARE        SECURITY        ANALYSIS
 
-'''+ Style.RESET_ALL)
+''' + Style.RESET_ALL)
+
 
 def main():
     banner()
     while True:  # Infinite loop until user exits
-        cmd = input(Fore.YELLOW + Style.BRIGHT + "Router Exploit Tool> " + Style.RESET_ALL).strip().lower()
+        cmd = input(Fore.YELLOW + Style.BRIGHT + "Router Exploit Tool> " +
+                    Style.RESET_ALL).strip().lower()
 
         if cmd == "exit":
-            print("Exiting...")
+            print(Fore.GREEN + "[+] Exiting...")
             sys.exit(0)  # Exits the program safely
 
         elif cmd == "help":
             display_help()
-        
+
         elif cmd == "scan":
             load_function("scan")
-        
+
         elif cmd == "bruteforce":
             load_function("bruteforce")
-        
+
         elif cmd == "mitm":
             load_function("mitm")
-        
+
         elif cmd == "dns":
             load_function("dns")
-        
+
         else:
-            print("[-] Unknown command. Type 'help' for available commands.")
+            print(Fore.RED +
+                  "[-] Unknown command. Type 'help' for available commands.")
+
 
 if __name__ == "__main__":
     main()
