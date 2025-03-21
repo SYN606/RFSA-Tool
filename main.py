@@ -1,42 +1,62 @@
 import os
 import sys
 import argparse
+import importlib
 import importlib.util
 from colorama import Fore, Style, init
+from functions import bruteforce
 
 # Initialize Colorama for colored output
 init(autoreset=True)
 
 ROOT_DIR = "functions"
 
+import importlib
 
 def load_function(module_name):
-    """Dynamically loads and executes a function from the functions directory."""
+    """Dynamically loads and executes a function from the functions package."""
     try:
-        module_path = os.path.join(ROOT_DIR, f"{module_name}.py")
+        module = importlib.import_module(f"functions.{module_name}")
 
-        if not os.path.exists(module_path):
-            print(Fore.RED +
-                  f"[ERROR] Function {module_name} not found in {ROOT_DIR}/")
-            return
-
-        # Load the module dynamically
-        spec = importlib.util.spec_from_file_location(module_name, module_path)
-        module = importlib.util.module_from_spec(spec)  # type: ignore
-        spec.loader.exec_module(module)  # type: ignore
-
-        # Check if the function exists and execute it
         if hasattr(module, module_name):
-            print(Fore.GREEN + f"[+] Running {module_name}...")
-            getattr(module, module_name)()  # Calls scan(), bruteforce(), etc.
+            print(f"[+] Running {module_name}...")
+            getattr(module, module_name)()  # Calls the function dynamically
         else:
-            print(
-                Fore.RED +
-                f"[ERROR] Function {module_name} not found in {module_name}.py"
-            )
-
+            print(f"[ERROR] Function {module_name} not found in functions/{module_name}.py")
     except Exception as e:
-        print(Fore.RED + f"[ERROR] Failed to execute {module_name}: {e}")
+        print(f"[ERROR] Failed to execute {module_name}: {e}")
+
+
+# def load_function(module_name):
+#     """Dynamically loads and executes a function from the functions directory."""
+    
+    # try:
+    #     module_path = os.path.join(ROOT_DIR, f"{module_name}.py")
+
+    #     if not os.path.exists(module_path):
+    #         print(Fore.RED +
+    #               f"[ERROR] Function {module_name} not found in {ROOT_DIR}/")
+    #         return
+
+    #     # Load the module dynamically
+    #     spec = importlib.util.spec_from_file_location(module_name, module_path)
+    #     module = importlib.util.module_from_spec(spec)  # type: ignore
+    #     spec.loader.exec_module(module)  # type: ignore
+
+    #     # Check if the function exists and execute it
+    #     if hasattr(module, module_name):
+    #         print(Fore.GREEN + f"[+] Running {module_name}...")
+    #         getattr(module, module_name)()  # Calls scan(), bruteforce(), etc.
+    #     else:
+    #         print(
+    #             Fore.RED +
+    #             f"[ERROR] Function {module_name} not found in {module_name}.py"
+    #         )
+
+    # except Exception as e:
+    #     print(Fore.RED + f"[ERROR] Failed to execute {module_name}: {e}")
+
+        
 
 
 def display_help():

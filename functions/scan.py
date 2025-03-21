@@ -1,12 +1,12 @@
 from scapy.all import ARP, Ether, srp  # type: ignore
 import netifaces
 
+OUTPUT_FILE = "scanned_ips.txt"
 
 def get_default_gateway():
     """Retrieves the default gateway IP of the current network."""
     gateway = netifaces.gateways()
     return gateway['default'].get(netifaces.AF_INET, [None])[0]  # type: ignore
-
 
 def scan_network(ip_range):
     """Scans the given IP range for active devices."""
@@ -24,7 +24,6 @@ def scan_network(ip_range):
     } for sent, received in result]
 
     return devices
-
 
 def scan():
     """Main function to scan for routers on the network."""
@@ -48,5 +47,15 @@ def scan():
     ]
 
     print("\n[+] Possible Routers:")
-    for router in routers:
-        print(f"    IP: {router['ip']}, MAC: {router['mac']}")
+    if routers:
+        with open(OUTPUT_FILE, "w") as f:
+            for router in routers:
+                print(f"    IP: {router['ip']}, MAC: {router['mac']}")
+                f.write(router['ip'] + "\n")
+
+        print(f"[+] Saved {len(routers)} router IP(s) to {OUTPUT_FILE}")
+    else:
+        print("[-] No routers found.")
+
+def main():
+    scan()
