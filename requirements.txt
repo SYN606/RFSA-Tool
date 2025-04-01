@@ -4,3 +4,6 @@ scapy==2.6.1
 requests 
 paramiko
 pexpect
+pyelftools
+capstone
+ropgadget
