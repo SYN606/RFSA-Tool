@@ -7,3 +7,11 @@ pexpect
 pyelftools
 capstone
 ropgadget
+binwalk
+pwntools
+impacket
+python-nmap
+pycvesearch
+random2
+logging
+scp 

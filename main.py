@@ -1,193 +1,31 @@
-# import os
-# import sys
-# import argparse
-# import importlib
-# import importlib.util
-# from colorama import Fore, Style, init
-# from functions import bruteforce
-
-# # Initialize Colorama for colored output
-# init(autoreset=True)
-
-# ROOT_DIR = "functions"
-
-# import importlib
-
-# def load_function(module_name):
-#     """Dynamically loads and executes a function from the functions package."""
-#     try:
-#         module = importlib.import_module(f"functions.{module_name}")
-
-#         if hasattr(module, module_name):
-#             print(f"[+] Running {module_name}...")
-#             getattr(module, module_name)()  # Calls the function dynamically
-#         else:
-#             print(f"[ERROR] Function {module_name} not found in functions/{module_name}.py")
-#     except Exception as e:
-#         print(f"[ERROR] Failed to execute {module_name}: {e}")
-
-
-# # def load_function(module_name):
-# #     """Dynamically loads and executes a function from the functions directory."""
-    
-#     # try:
-#     #     module_path = os.path.join(ROOT_DIR, f"{module_name}.py")
-
-#     #     if not os.path.exists(module_path):
-#     #         print(Fore.RED +
-#     #               f"[ERROR] Function {module_name} not found in {ROOT_DIR}/")
-#     #         return
-
-#     #     # Load the module dynamically
-#     #     spec = importlib.util.spec_from_file_location(module_name, module_path)
-#     #     module = importlib.util.module_from_spec(spec)  # type: ignore
-#     #     spec.loader.exec_module(module)  # type: ignore
-
-#     #     # Check if the function exists and execute it
-#     #     if hasattr(module, module_name):
-#     #         print(Fore.GREEN + f"[+] Running {module_name}...")
-#     #         getattr(module, module_name)()  # Calls scan(), bruteforce(), etc.
-#     #     else:
-#     #         print(
-#     #             Fore.RED +
-#     #             f"[ERROR] Function {module_name} not found in {module_name}.py"
-#     #         )
-
-#     # except Exception as e:
-#     #     print(Fore.RED + f"[ERROR] Failed to execute {module_name}: {e}")
-
-        
-
-
-# def display_help():
-#     """Displays help information about the tool."""
-#     help_text = """
-#     Router Exploit Tool - A Python-based tool for router penetration testing.
-    
-#     Usage:
-#         python main.py [options]
-
-#     Options:
-#         -s, --scan          Scan the network for available routers.
-#         -b, --bruteforce    Perform brute-force attack on the router login page.
-#         -m, --mitm          Launch a Man-in-the-Middle (MITM) attack.
-#         -d, --dns           Perform DNS spoofing attack.
-#         -h, --help          Show this help message.
-
-#     Examples:
-#         python main.py --scan
-#         python main.py --bruteforce -t 192.168.1.1
-#         python main.py --mitm -v 192.168.1.2 -g 192.168.1.1
-
-#     Notes:
-#     - Use this tool **only for educational and ethical purposes**.
-#     - Ensure you have permission before testing any network.
-#     """
-#     print(help_text)
-
-
-# # Argument parser setup
-# parser = argparse.ArgumentParser(
-#     description="Router Exploit Tool - Ethical Hacking Utility")
-# parser.add_argument("-s",
-#                     "--scan",
-#                     help="Scan the network for routers",
-#                     action="store_true")
-# parser.add_argument("-b",
-#                     "--bruteforce",
-#                     help="Perform brute-force attack",
-#                     action="store_true")
-# parser.add_argument("-m",
-#                     "--mitm",
-#                     help="Launch a Man-in-the-Middle attack",
-#                     action="store_true")
-# parser.add_argument("-d",
-#                     "--dns",
-#                     help="Perform DNS spoofing",
-#                     action="store_true")
-# parser.add_argument("-t", "--target", help="Specify target router IP")
-# parser.add_argument("-v",
-#                     "--victim",
-#                     help="Specify victim IP (for MITM attack)")
-# parser.add_argument("-g",
-#                     "--gateway",
-#                     help="Specify gateway IP (for MITM attack)")
-# parser.add_argument("-H",
-#                     "--help-module",
-#                     help="Display help information",
-#                     action="store_true")
-
-# args = parser.parse_args()
-
-# if args.help_module:
-#     display_help()
-#     exit()
-
-# RED = "\033[91m"
-# GREEN = "\033[92m"
-# YELLOW = "\033[93m"
-# BLUE = "\033[94m"
-# CYAN = "\033[96m"
-# RESET = "\033[0m"  # Resets color to default
-
-
-# def banner():
-#     print(Fore.RED + Style.BRIGHT + r'''
-#     ____          ______        _____         ___ 
-#    / __ \        / ____/       / ___/        /   |
-#   / /_/ /       / /_           \__ \        / /| |
-#  / _, _/  _    / __/    _     ___/ /  _    / ___ |
-# /_/ |_|  (_)  /_/      (_)   /____/  (_)  /_/  |_|
-
-# ROUTER      FIRMWARE        SECURITY        ANALYSIS
-
-# ''' + Style.RESET_ALL)
-
-
-# def main():
-#     banner()
-#     while True:  # Infinite loop until user exits
-#         cmd = input(Fore.YELLOW + Style.BRIGHT + "Router Exploit Tool> " +
-#                     Style.RESET_ALL).strip().lower()
-
-#         if cmd == "exit":
-#             print(Fore.GREEN + "[+] Exiting...")
-#             sys.exit(0)  # Exits the program safely
-
-#         elif cmd == "help":
-#             display_help()
-
-#         elif cmd == "scan":
-#             load_function("scan")
-
-#         elif cmd == "bruteforce":
-#             load_function("bruteforce")
-
-#         elif cmd == "mitm":
-#             load_function("mitm")
-
-#         elif cmd == "dns":
-#             load_function("dns")
-
-#         else:
-#             print(Fore.RED +
-#                   "[-] Unknown command. Type 'help' for available commands.")
-
-
-# if __name__ == "__main__":
-#     main()
-
 import argparse
 import sys
 import os
 import subprocess
-from extract import extract_firmware
-from rsv.scan import scan_vulnerabilities
-from report import generate_report
-from exploit import test_exploits
+import logging
+import paramiko
+from scp import SCPClient  # Now resolved with pip install scp
+from getpass import getpass
+from extract import *  # e.g., extract_firmware
+from rsv.scan import *  # e.g., scan_vulnerabilities
+from report import *   # e.g., generate_report
+from rsv.exploit import *  # e.g., test_exploits
 from pycvesearch import CVESearch
-from scapy.all import *
-from colorama import *
+from scapy.all import srp, IP, TCP, Ether, ARP
+from colorama import Fore, Style, init
+
+# Initialize colorama
+init()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("rfvs.log"),
+        logging.StreamHandler()
+    ]
+)
 
 def banner():
     print(Fore.RED + Style.BRIGHT + r'''
@@ -198,152 +36,220 @@ def banner():
 /_/ |_|  (_)  /_/      (_)   /____/  (_)  /_/  |_|
 
 ROUTER      FIRMWARE        SECURITY        ANALYSIS
-
 ''' + Style.RESET_ALL)
-    
+    logger = logging.getLogger(__name__)
+    logger.info("Welcome to RFVS - Router Firmware Vulnerability Scanner")
+    logger.info("Type 'exit' to quit the tool at any prompt.")
+
 def parse_args(input_string):
-    """Parse arguments from a string input."""
     parser = argparse.ArgumentParser(description="Router Firmware Vulnerability Scanner (RFVS)")
     parser.add_argument("-f", "--file", help="Path to the firmware file (e.g., firmware.bin)")
-    parser.add_argument("-e", "--extract", action="store_true", help="Extract firmware contents")
+    parser.add_argument("-e", "--extract", action="store_true", help="Extract firmware contents from file")
     parser.add_argument("-s", "--scan", action="store_true", help="Scan firmware for vulnerabilities")
-    parser.add_argument("-d", "--deep", action="store_true", help="Perform deep vulnerability scan (slower, more thorough)")
-    parser.add_argument("-c", "--cve", action="store_true", help="Perform CVE lookup on firmware components")
-    parser.add_argument("-x", "--exploit", action="store_true", help="Test exploits on detected vulnerabilities")
-    parser.add_argument("-n", "--network", action="store_true", help="Perform network-based tests (e.g., port scanning, firewall bypass)")
-    parser.add_argument("-t", "--targets", action="store_true", help="Scan for potential targets on the network")
+    parser.add_argument("-d", "--deep", action="store_true", help="Perform deep vulnerability scan")
+    parser.add_argument("-c", "--cve", action="store_true", help="Perform CVE lookup")
+    parser.add_argument("-x", "--exploit", action="store_true", help="Test exploits")
+    parser.add_argument("-n", "--network", action="store_true", help="Perform network tests")
+    parser.add_argument("-t", "--targets", action="store_true", help="Scan for network targets")
+    parser.add_argument("-i", "--ip", help="Target IP address (e.g., 192.168.1.1)")
     parser.add_argument("-r", "--report", action="store_true", help="Generate a report")
-    parser.add_argument("-o", "--output", default="report.txt", help="Output file for the report (default: report.txt)")
+    parser.add_argument("-o", "--output", default="report.txt", help="Output file for report")
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
-    
-    # Allow parsing from string input
+    parser.add_argument("-X", "--extract-from-router", action="store_true", help="Extract firmware from router via SSH")
+    parser.add_argument("--use-sample", action="store_true", help="Use DVRF sample firmware for testing")
     args = parser.parse_args(input_string.split())
     return args
 
+def extract_from_router(ip, username=None, password=None, output_file="router_firmware.bin"):
+    logger = logging.getLogger(__name__)
+    logger.info(f"Attempting SSH firmware extraction from {ip}")
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        if username and password:
+            ssh.connect(ip, username=username, password=password, timeout=10)
+        else:
+            logger.warning("No credentials provided; trying default or open access")
+            ssh.connect(ip, timeout=10)  # Try without credentials
+
+        stdin, stdout, stderr = ssh.exec_command("cat /proc/mtd")
+        mtd_output = stdout.read().decode().strip()
+        if not mtd_output:
+            logger.error("SSH connected but no MTD info; access may be restricted")
+            return None
+        logger.info(f"MTD partitions:\n{mtd_output}")
+
+        firmware_partition = None
+        for line in mtd_output.splitlines():
+            if "firmware" in line.lower() or "rootfs" in line.lower():
+                firmware_partition = line.split(":")[0].strip()
+                break
+        if not firmware_partition:
+            logger.error("No firmware partition found")
+            return None
+
+        dump_cmd = f"dd if=/dev/{firmware_partition} of=/tmp/firmware.bin"
+        stdin, stdout, stderr = ssh.exec_command(dump_cmd)
+        if stdout.channel.recv_exit_status() != 0:
+            logger.error(f"Dump failed: {stderr.read().decode()}")
+            return None
+
+        with SCPClient(ssh.get_transport()) as scp:
+            scp.get("/tmp/firmware.bin", output_file)
+        ssh.exec_command("rm /tmp/firmware.bin")
+        ssh.close()
+        logger.info(f"Firmware extracted to {output_file}")
+        return output_file
+    except Exception as e:
+        logger.error(f"SSH extraction failed: {e}")
+        logger.info("Try default credentials, reset the router, or use --use-sample for DVRF.")
+        return None
+
 def main():
+    logger = logging.getLogger(__name__)
     banner()
-    findings = {}  # Persistent findings across commands
+    findings = {}
+
+    if not sys.argv.__contains__("-v"):
+        for handler in logger.handlers[:]:
+            if isinstance(handler, logging.StreamHandler) and not isinstance(handler, logging.FileHandler):
+                logger.removeHandler(handler)
 
     while True:
         try:
             command = input("\nRFVS> ").strip()
             if command.lower() == "exit":
-                print("Exiting RFVS. Goodbye!")
+                logger.info("Exiting RFVS. Goodbye!")
                 break
             if not command:
-                print("Please enter a command. Use '-h' for help.")
+                logger.warning("Please enter a command. Use '-h' for help.")
                 continue
 
-            # Parse the command as arguments
             args = parse_args(command)
+            if args.verbose:
+                if not any(isinstance(h, logging.StreamHandler) and not isinstance(h, logging.FileHandler) for h in logger.handlers):
+                    logger.addHandler(logging.StreamHandler())
 
-            # Check if firmware file is provided when required
-            if not args.file and any([args.extract, args.scan, args.cve, args.exploit, args.report]):
-                print("Error: Firmware file (-f/--file) is required for this operation.")
+            # Use DVRF sample firmware if specified
+            if args.use_sample:
+                sample_path = "samples/DVRF/Firmware/DVRF_v03.bin"
+                if os.path.exists(sample_path):
+                    args.file = sample_path
+                    logger.info(f"Using DVRF sample firmware: {sample_path}")
+                else:
+                    logger.error(f"DVRF sample not found at {sample_path}. Please download it.")
+                    continue
+
+            # Extract firmware from router if requested
+            if args.extract_from_router:
+                if not args.ip:
+                    logger.error("Router IP (-i/--ip) required for extraction")
+                    continue
+                firmware_file = extract_from_router(args.ip)
+                if firmware_file:
+                    args.file = firmware_file
+                else:
+                    continue
+
+            if not args.file and any([args.extract, args.scan, args.cve]):
+                logger.error("Firmware file (-f/--file), extraction (-X), or sample (--use-sample) required")
                 continue
 
             if args.file and not os.path.exists(args.file):
-                print(f"Error: File '{args.file}' not found.")
+                logger.error(f"File '{args.file}' not found.")
                 continue
 
-            # Process commands
             if args.targets:
-                if args.verbose:
-                    print("Scanning for potential targets...")
-                targets = scan_targets("192.168.1.0/24")  # Adjust subnet as needed
+                logger.info("Scanning for targets...")
+                targets = scan_targets("192.168.1.0/24")
                 findings["targets"] = targets
-                print(f"Found {len(targets)} targets.")
+                logger.info(f"Found {len(targets)} targets: {[t['ip'] for t in targets]}")
 
             if args.extract:
-                if args.verbose:
-                    print(f"Extracting firmware: {args.file}")
-                extracted_dir = extract_firmware(args.file)
+                logger.info(f"Extracting firmware: {args.file}")
+                extracted_dir = extract_firmware(args.file, verbose=args.verbose, overwrite=True, cleanup=False)
                 if extracted_dir:
                     findings["extracted_dir"] = extracted_dir
-                    print(f"Extracted to: {extracted_dir}")
+                    if args.ip:
+                        findings["target_ip"] = args.ip
+                    logger.info(f"Extracted to: {extracted_dir}")
                 else:
-                    print("Extraction failed.")
+                    logger.error("Extraction failed.")
 
             if args.scan:
                 if "extracted_dir" not in findings:
-                    print("Error: Must extract firmware (-e/--extract) before scanning.")
+                    logger.error("Must extract firmware (-e/--extract) first")
                     continue
-                if args.verbose:
-                    print("Scanning for vulnerabilities..." + (" (deep mode)" if args.deep else " (quick mode)"))
+                logger.info("Scanning vulnerabilities..." + (" (deep)" if args.deep else ""))
                 vulnerabilities = scan_vulnerabilities(findings["extracted_dir"], deep=args.deep)
                 findings["vulnerabilities"] = vulnerabilities
-                print(f"Found {len(vulnerabilities) if isinstance(vulnerabilities, list) else 0} vulnerabilities.")
+                logger.info(f"Found {len(vulnerabilities)} vulnerabilities")
 
             if args.cve:
                 if "vulnerabilities" not in findings:
-                    print("Error: Must scan firmware (-s/--scan) before CVE lookup.")
+                    logger.error("Must scan (-s/--scan) first")
                     continue
-                if args.verbose:
-                    print("Performing CVE lookup...")
+                logger.info("Performing CVE lookup...")
                 cve = CVESearch()
                 for vuln in findings["vulnerabilities"]:
                     if "component" in vuln:
-                        results = cve.search(vuln["component"])
-                        vuln["cve"] = [r["id"] for r in results[:3]]
-                print("CVE lookup completed.")
+                        vuln["cve"] = [r["id"] for r in cve.search(vuln["component"])[:3]]
+                logger.info("CVE lookup completed")
 
             if args.exploit:
                 if "vulnerabilities" not in findings:
-                    print("Error: Must scan firmware (-s/--scan) before exploiting.")
+                    logger.error("Must scan (-s/--scan) first")
                     continue
-                if args.verbose:
-                    print("Testing exploits...")
-                exploit_results = test_exploits(findings["vulnerabilities"], args.verbose)
+                logger.info("Testing exploits...")
+                targets = [{"ip": args.ip}] if args.ip else findings.get("targets", [{"ip": "192.168.1.1"}])
+                exploit_results = test_exploits(findings["vulnerabilities"], args.verbose, targets, timeout=5)
                 findings["exploit_results"] = exploit_results
-                print(f"Exploit tests completed: {len(exploit_results)} results.")
+                logger.info(f"Exploit results: {len(exploit_results)}")
 
             if args.network:
-                if args.verbose:
-                    print("Performing network tests...")
-                network_results = network_test("192.168.1.1")  # Replace with target IP
+                target_ip = args.ip or findings.get("target_ip", "192.168.1.1")
+                logger.info(f"Network tests on {target_ip}...")
+                network_results = network_test(target_ip)
                 findings["network_results"] = network_results
-                print(f"Network tests completed: {len(network_results)} results.")
+                logger.info(f"Network results: {len(network_results)}")
 
             if args.report:
-                if not (args.scan or args.targets) or ("vulnerabilities" not in findings and "targets" not in findings):
-                    print("Error: Must scan (-s/--scan) or find targets (-t/--targets) before generating a report.")
+                if not (args.scan or args.targets) or not (findings.get("vulnerabilities") or findings.get("targets")):
+                    logger.error("Must scan (-s) or find targets (-t) first")
                     continue
-                if args.verbose:
-                    print(f"Generating report: {args.output}")
-                generate_report(findings, args.output)
-                print(f"Report saved to {args.output}")
+                logger.info(f"Generating report: {args.output}")
+                if generate_report(findings, args.output, verbose=args.verbose):
+                    logger.info(f"Report saved to {args.output}")
+                else:
+                    logger.error("Report generation failed")
 
-            if not any([args.extract, args.scan, args.cve, args.exploit, args.network, args.targets, args.report]):
-                print("No valid operations specified. Use '-h' for help.")
-
-        except KeyboardInterrupt:
-            print("\nInterrupted by user. Type 'exit' to quit or continue with a new command.")
         except Exception as e:
-            print(f"Error: {e}. Please try again.")
+            logger.error(f"Unexpected error: {e}")
 
 def scan_targets(subnet):
-    """Scan the network for potential router targets."""
+    logger = logging.getLogger(__name__)
     results = []
-    conf.verb = 0  # Suppress Scapy output
-    ans, _ = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=subnet), timeout=2)
-    for sent, received in ans:
-        ip = received.psrc
-        mac = received.hwsrc
-        results.append({"ip": ip, "mac": mac})
+    try:
+        ans, _ = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=subnet), timeout=2, verbose=0)
+        for _, received in ans:
+            results.append({"ip": received.psrc, "mac": received.hwsrc})
+    except Exception as e:
+        logger.error(f"Target scanning failed: {e}")
     return results
 
 def network_test(target_ip):
-    """Perform network tests including port scan and firewall bypass."""
+    logger = logging.getLogger(__name__)
     results = []
     packet = IP(dst=target_ip)/TCP(dport=80, flags="S")
     response = sr1(packet, timeout=2, verbose=0)
-    if response and response.haslayer(TCP) and response[TCP].flags == 18:  # SYN-ACK
+    if response and response.haslayer(TCP) and response[TCP].flags == 18:
         results.append({"test": "Port 80 scan", "status": "open"})
     try:
-        cmd = f"hping3 {target_ip} --flood --frag -c 100"  # Limited to 100 packets
+        cmd = f"hping3 {target_ip} --flood --frag -c 100"
         subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        results.append({"test": "Firewall bypass (fragmented flood)", "status": "Attempted"})
-    except:
+        results.append({"test": "Firewall bypass", "status": "Attempted"})
+    except Exception as e:
+        logger.error(f"Firewall bypass failed: {e}")
         results.append({"test": "Firewall bypass", "status": "Failed"})
     return results
 
