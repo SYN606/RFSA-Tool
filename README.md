@@ -113,20 +113,35 @@ RFVS> -t -n -i 192.168.1.1 -r -v
 text
 RFSA-Tool/
 ├── main.py              # Core script with interactive shell
+
 ├── extract.py           # Handles firmware extraction
+
 ├── rsv/
+
 │   ├── scan.py         # Scans for vulnerabilities
+
 │   ├── exploit.py      # Tests exploits
+
 │   └── __init__.py
+
 ├── report.py            # Generates reports
+
 ├── samples/
+
 │   └── DVRF/
+
 │       └── Firmware/
+
 │           └── DVRF_v03.bin  # DVRF sample
+
 ├── extracted_firmware.bin/  # Extracted contents
+
 ├── rfvs.log             # Logs
+
 ├── report.txt           # Report output
+
 └── env/                 # Virtual environment
+
 
 # Notes
 
