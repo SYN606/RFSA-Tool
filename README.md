@@ -142,7 +142,11 @@ RFSA-Tool/
    bash
 
 binwalk -e samples/DVRF/Firmware/DVRF_v03.bin
+
 No Vulnerabilities Found: Ensure pyelftools is installed for ELF analysis:
+
 bash
+
 pip install pyelftools
+
 Network Errors: Run with sudo and check target IP reachability (ping 192.168.1.1).
