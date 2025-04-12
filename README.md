@@ -108,3 +108,41 @@ bash
 RFVS> -t -n -i 192.168.1.1 -r -v
 
   Discovers devices, tests network services on 192.168.1.1, and reports findings.
+
+# Project Structure
+text
+RFSA-Tool/
+├── main.py              # Core script with interactive shell
+├── extract.py           # Handles firmware extraction
+├── rsv/
+│   ├── scan.py         # Scans for vulnerabilities
+│   ├── exploit.py      # Tests exploits
+│   └── __init__.py
+├── report.py            # Generates reports
+├── samples/
+│   └── DVRF/
+│       └── Firmware/
+│           └── DVRF_v03.bin  # DVRF sample
+├── extracted_firmware.bin/  # Extracted contents
+├── rfvs.log             # Logs
+├── report.txt           # Report output
+└── env/                 # Virtual environment
+
+# Notes
+
+   1. Dependencies: Ensure squashfs-tools is installed for DVRF’s SquashFS filesystem.
+   2. Root Access: Use sudo for network operations (scapy, hping3).
+   3. DVRF: Ideal for testing without a live router. Download from DVRF GitHub.
+   4. Verbose Mode: Use -v to debug issues (logs to rfvs.log and console).
+   5. Limitations: SSH extraction (-X) requires router credentials and compatible firmware layout.
+
+# Troubleshooting
+
+   Extraction Fails: Verify binwalk and squashfs-tools are installed. Test manually:
+   bash
+
+binwalk -e samples/DVRF/Firmware/DVRF_v03.bin
+No Vulnerabilities Found: Ensure pyelftools is installed for ELF analysis:
+bash
+pip install pyelftools
+Network Errors: Run with sudo and check target IP reachability (ping 192.168.1.1).
