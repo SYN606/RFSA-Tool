@@ -130,9 +130,9 @@ RFSA-Tool/
 
 │   └── DVRF/
 
-│       └── Firmware/
+│        └── Firmware/
 
-│           └── DVRF_v03.bin  # DVRF sample
+│            └── DVRF_v03.bin  # DVRF sample
 
 ├── extracted_firmware.bin/  # Extracted contents
 
