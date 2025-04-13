@@ -1,0 +1,47 @@
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+env/
+*.env
+
+# Log files
+*.log
+
+# Configuration files with sensitive data (you may need to specify or add some more specific ones here)
+config/.env
+
+# IDE directories and files
+.vscode/
+.idea/
+
+# MacOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Temporary files created by the editor or OS
+*.swp
+*~
+
+# Network and Wi-Fi scan results, or any other output files that shouldn't be committed
+network_scan_results/
+wifi_scan_results/
+
+# Docker related files (if using Docker)
+docker-compose.override.yml
+Dockerfile
+
+# PyInstaller output (if you are creating executables)
+dist/
+build/
+
+# Ignore any additional files/folders as per your requirements.
