@@ -9,19 +9,22 @@ init(autoreset=True)
 
 class WiFiMonitor:
 
-    def __init__(self, interface=CONFIG['monitor_interface']):
-        self.interface = interface
+    def __init__(self, interface=None):
+        self.interface = interface or CONFIG.get("monitor_interface")
         self.networks = {}
 
     def scan(self, duration=20):
         """
         Scans for Wi-Fi networks in monitor mode for a specified duration.
         """
+        if not self.interface:
+            print(Fore.RED + "❌ No monitor mode interface specified.")
+            return
+
         print(
             Fore.CYAN +
-            f"🔍 Scanning for networks in monitor mode on {self.interface}...\n"
+            f"🔍 Scanning for networks in monitor mode on '{self.interface}'...\n"
         )
-
         sniff(iface=self.interface, prn=self.packet_handler, timeout=duration)
 
         if self.networks:
@@ -42,34 +45,32 @@ class WiFiMonitor:
         """
         Handles captured packets to extract Wi-Fi network info.
         """
-        if pkt.haslayer(Dot11):
-            if pkt.type == 0 and pkt.subtype == 8:  # Beacon frame
-                ssid = pkt.info.decode(
-                    errors="ignore") if pkt.info else "Hidden"
-                bssid = pkt.addr2
-                signal_strength = getattr(pkt, 'dBm_AntSignal', 'N/A')
+        if pkt.haslayer(Dot11) and pkt.type == 0 and pkt.subtype == 8:
+            ssid = pkt.info.decode(errors="ignore") if pkt.info else "Hidden"
+            bssid = pkt.addr2
+            signal_strength = getattr(pkt, 'dBm_AntSignal', 'N/A')
 
-                # Extract channel
-                channel = None
-                if pkt.haslayer(Dot11Elt):
-                    elements = pkt[Dot11Elt]
-                    while isinstance(elements, Dot11Elt):
-                        if elements.ID == 3:  # DS Parameter Set
-                            channel = int.from_bytes(elements.info, "little")
-                            break
-                        elements = elements.payload
+            # Extract channel
+            channel = None
+            if pkt.haslayer(Dot11Elt):
+                elements = pkt[Dot11Elt]
+                while isinstance(elements, Dot11Elt):
+                    if elements.ID == 3:  # DS Parameter Set
+                        channel = int.from_bytes(elements.info, "little")
+                        break
+                    elements = elements.payload
 
-                encryption = self.get_encryption(pkt)
+            encryption = self.get_encryption(pkt)
 
-                if ssid not in self.networks:
-                    self.networks[ssid] = {
-                        'encryption': encryption,
-                        'signal_strength': signal_strength,
-                        'channel': channel or "Unknown",
-                        'hidden': (ssid == "Hidden")
-                    }
+            if ssid not in self.networks:
+                self.networks[ssid] = {
+                    'encryption': encryption,
+                    'signal_strength': signal_strength,
+                    'channel': channel or "Unknown",
+                    'hidden': (ssid == "Hidden")
+                }
 
-                log_info(f"Detected network: {ssid} ({encryption})")
+            log_info(f"Detected network: {ssid} ({encryption})")
 
     def get_encryption(self, pkt):
         """
@@ -80,7 +81,7 @@ class WiFiMonitor:
         if "privacy" not in capabilities.lower():
             return "Open"
 
-        enc = "WEP"  # Default fallback
+        enc = "WEP"
         if pkt.haslayer(Dot11Elt):
             el = pkt[Dot11Elt]
             while isinstance(el, Dot11Elt):

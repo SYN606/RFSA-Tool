@@ -57,7 +57,6 @@ def main():
                 print(
                     f"📡 Monitor mode dongle '{monitor_interface}' detected. Starting Wi-Fi scan..."
                 )
-
                 monitor = WiFiMonitor(interface=monitor_interface)
                 monitor.scan()
             else:
