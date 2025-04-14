@@ -3,7 +3,7 @@ CONFIG = {
     "timeout": 3,
     "default_router_ip": "192.168.1.1",
     "wifi_monitor_enabled": True,
-
+    "monitor_interface": "wlan0mon"
     # Port Scanning
     "scan_ports": [21, 22, 23, 53, 80, 139, 443, 445, 8080],
     "max_threads": 50,  # For threaded port scan (if used)
