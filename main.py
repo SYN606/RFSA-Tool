@@ -8,7 +8,7 @@ from utils.helper import get_default_gateway
 from utils.logger import log_info, log_warn
 from analysis.sync import sync_nvd_feed
 from analysis.firmware_checker import check_firmware
-
+from reporting.report_writer import save_report
 
 
 def main():
@@ -101,7 +101,8 @@ def main():
             fallback_scanner = NetworkScanner(network_range)
             report["network_scan"] = fallback_scanner.perform_scan() or []
 
-  
+    # Step 7: Save the full report
+    save_report(report)
 
 
 if __name__ == "__main__":
