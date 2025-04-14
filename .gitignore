@@ -45,4 +45,4 @@ dist/
 build/
 
 # Ignore any additional files/folders as per your requirements.
-output/
+reporting/output/
