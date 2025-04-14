@@ -6,6 +6,7 @@ from colorama import Fore, Style
 from config.settings import CONFIG
 from utils.helper import get_default_gateway
 from utils.logger import log_info, log_warn, log_error
+from scanner.network_scanner import NetworkScanner
 
 # Suppress HTTPS warnings if verify=False is used
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -85,6 +86,7 @@ def analyze_admin_possibility(page_text):
 def check_user_level():
     """
     Determines user access level by attempting to reach the router's login interface.
+    Also fetches vendor, model, and version information if possible.
     """
     print("🔍 Checking router access level...")
 
@@ -98,7 +100,7 @@ def check_user_level():
     if not accessible:
         print("❌ Cannot access router login page. Assuming normal user.")
         log_warn("Cannot access router login page. Assuming normal user.")
-        return "normal"
+        return "normal", None  # Returning 'None' as we won't scan for vendor/model/version
 
     # Optional: print trimmed response for debugging
     if CONFIG.get("debug"):
@@ -108,8 +110,38 @@ def check_user_level():
     if analyze_admin_possibility(page_text):
         print("✅ Router login page detected. You may have admin access.")
         log_info("Router login page detected, potential admin access.")
-        return "admin"
+
+        # If admin, perform a network scan to get router details
+        print("🔍 Performing network scan to detect router details...")
+        network_scanner = NetworkScanner(
+            network_range=f"{router_ip}/24"
+        )  # Assuming the /24 subnet for the router
+        devices = network_scanner.perform_scan()
+
+        # Attempt to extract router's vendor, model, and version
+        for device in devices: # type: ignore
+            if device["ip"] == router_ip:
+                vendor = device["vendor"]
+                model = device["model"]
+                version = device["version"]
+                print(
+                    f"🔍 Found router details: Vendor: {vendor}, Model: {model}, Version: {version}"
+                )
+                return "admin", {
+                    "vendor": vendor,
+                    "model": model,
+                    "version": version
+                }
+        return "admin", None
 
     print("⚠️ Router is reachable but no clear admin access detected.")
     log_warn("Router is reachable but no clear admin access detected.")
-    return "normal"
+    return "normal", None  # If no admin access, return normal and no details
+
+
+# Example usage
+user_level, router_info = check_user_level()
+if user_level == "admin" and router_info:
+    print(f"Admin access confirmed. Router info: {router_info}")
+else:
+    print("Normal user or no router details found.")

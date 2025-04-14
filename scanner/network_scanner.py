@@ -100,16 +100,19 @@ class NetworkScanner:
 
 
 if __name__ == "__main__":
+    # Take user input for custom scan range and services filter
     network_range = input(
         "Enter the network range to scan (default is 192.168.1.0/24): ")
     service_filter_input = input(
         "Enter comma-separated services to filter (e.g., ssh,http,https) or leave empty for all: "
     )
 
+    # Parse service filter input
     service_filter = service_filter_input.split(
         ",") if service_filter_input else None
     network_range = network_range or "192.168.1.0/24"
 
+    # Initialize and perform the scan
     scanner = NetworkScanner(network_range=network_range,
                              service_filter=service_filter)
     scanner.perform_scan()
