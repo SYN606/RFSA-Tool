@@ -9,7 +9,6 @@ from analysis.models import init_db, FirmwareSignature, SessionLocal, Metadata
 from config.settings import TARGET_VENDORS, FEED_FILE_PATH, NVD_FEED_URL
 
 
-
 def download_feed(url, filename=FEED_FILE_PATH):
     print("⬇️ Downloading NVD feed...")
     r = requests.get(url, stream=True)
@@ -35,28 +34,32 @@ def parse_and_store(data):
         description = description_data[0][
             'value'] if description_data else "No description."
 
-        for vendor_data in item['cve']['affects']['vendor']['vendor_data']:
-            vendor_name = vendor_data['vendor_name'].lower()
-            if vendor_name not in TARGET_VENDORS:
-                continue
+        # Check if 'affects' exists in the item and handle missing key
+        affects = item['cve'].get('affects')
+        if affects and 'vendor' in affects:
+            for vendor_data in affects['vendor'].get('vendor_data', []):
+                vendor_name = vendor_data['vendor_name'].lower()
+                if vendor_name not in TARGET_VENDORS:
+                    continue
 
-            for prod in vendor_data['product']['product_data']:
-                model = prod['product_name']
-                for ver in prod['version']['version_data']:
-                    version = ver['version_value']
+                for prod in vendor_data['product']['product_data']:
+                    model = prod['product_name']
+                    for ver in prod['version']['version_data']:
+                        version = ver['version_value']
 
-                    firmware_entry = FirmwareSignature(vendor=vendor_name,
-                                                       model=model,
-                                                       version=version,
-                                                       cve_id=cve_id,
-                                                       description=description)
+                        firmware_entry = FirmwareSignature(
+                            vendor=vendor_name,
+                            model=model,
+                            version=version,
+                            cve_id=cve_id,
+                            description=description)
 
-                    try:
-                        session.add(firmware_entry)
-                        session.commit()
-                        added += 1
-                    except IntegrityError:
-                        session.rollback()
+                        try:
+                            session.add(firmware_entry)
+                            session.commit()
+                            added += 1
+                        except IntegrityError:
+                            session.rollback()
 
     session.close()
     print(f"✅ Added {added} new CVE entries.")
@@ -68,17 +71,29 @@ def is_update_needed():
         Metadata.key == 'last_update').first()
 
     if not metadata:
-
         session.close()
         return True
 
-    last_update = datetime.strptime(
-        metadata.value,  # type: ignore
-        "%Y-%m-%d %H:%M:%S")
+    last_update = metadata.value  # type: ignore
+
+    try:
+        # Handle potential fractional seconds in the timestamp
+        last_update_time = datetime.strptime(last_update, # type: ignore
+                                             "%Y-%m-%d %H:%M:%S.%f")
+    except ValueError:
+        try:
+            # Fallback for dates without fractional seconds
+            last_update_time = datetime.strptime(last_update, # type: ignore
+                                                 "%Y-%m-%d %H:%M:%S")
+        except ValueError as e:
+            print(f"Error parsing date: {e}")
+            session.close()
+            return True
+
     session.close()
 
     # Check if the last update is older than 7 days
-    return datetime.now() - last_update > timedelta(days=7)
+    return datetime.now() - last_update_time > timedelta(days=7)
 
 
 # === Update the metadata with the last update timestamp ===

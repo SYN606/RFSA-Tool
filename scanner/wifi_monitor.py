@@ -16,16 +16,19 @@ class WiFiMonitor:
     def scan(self, duration=20):
         """
         Scans for Wi-Fi networks in monitor mode for a specified duration.
+        Returns a list of detected networks with key info.
         """
         if not self.interface:
             print(Fore.RED + "❌ No monitor mode interface specified.")
-            return
+            return []
 
         print(
             Fore.CYAN +
             f"🔍 Scanning for networks in monitor mode on '{self.interface}'...\n"
         )
         sniff(iface=self.interface, prn=self.packet_handler, timeout=duration)
+
+        result = []
 
         if self.networks:
             print(Fore.GREEN +
@@ -38,8 +41,18 @@ class WiFiMonitor:
                 print(Fore.CYAN + f"  Channel: {data['channel']}")
                 print(Fore.RED +
                       f"  Hidden: {'Yes' if data['hidden'] else 'No'}\n")
+
+                result.append({
+                    "ssid": ssid,
+                    "encryption": data["encryption"],
+                    "signal_strength": data["signal_strength"],
+                    "channel": data["channel"],
+                    "hidden": data["hidden"]
+                })
         else:
             print(Fore.RED + "❌ No networks detected.")
+
+        return result
 
     def packet_handler(self, pkt):
         """
@@ -70,7 +83,7 @@ class WiFiMonitor:
                     'hidden': (ssid == "Hidden")
                 }
 
-            log_info(f"Detected network: {ssid} ({encryption})")
+                log_info(f"Detected network: {ssid} ({encryption})")
 
     def get_encryption(self, pkt):
         """
