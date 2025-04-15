@@ -1,38 +1,21 @@
+import os
+from datetime import datetime
 from scanner.user_status_check import check_user_level
 from scanner.network_scanner import NetworkScanner
 from scanner.wifi_monitor import WiFiMonitor
 from config.settings import CONFIG
-from utils.helper import get_default_gateway, NetworkScanner
+from utils.helper import get_default_gateway
 from utils.logger import log_info, log_warn
 from analysis.sync import sync_nvd_feed
 from analysis.firmware_checker import check_firmware
-import json
-import os
-from datetime import datetime
-
-
-def save_report(data, filename="report.json"):
-    os.makedirs(CONFIG["report_output_path"], exist_ok=True)
-    path = os.path.join(CONFIG["report_output_path"], filename)
-
-    # Sort services by criticality if available
-    def sort_key(entry):
-        return entry.get("criticality", 0)
-
-    data["network_scan"] = sorted(data.get("network_scan", []),
-                                  key=sort_key,
-                                  reverse=True)
-
-    with open(path, "w") as f:
-        json.dump(data, f, indent=4)
-
-    print(f"✅ Report saved to: {path}")
+from reporting.report_writer import save_report
 
 
 def main():
-    # Sync the CVE database if needed
+    # Step 1: Sync CVE database
     sync_nvd_feed()
 
+    # Step 2: Initialize report structure
     report = {
         "timestamp": str(datetime.now()),
         "router_ip": None,
@@ -41,92 +24,84 @@ def main():
         "firmware_check": None,
     }
 
-    # Detect router IP dynamically
+    # Step 3: Detect router IP
     router_ip = get_default_gateway()
     if router_ip:
         log_info(f"Detected router IP: {router_ip}")
         report["router_ip"] = router_ip
     else:
-        log_warn("Failed to detect router IP. Falling back to default.")
+        log_warn("Failed to detect router IP. Continuing without router IP.")
 
-    # Firmware CVE check
-    # Instead of manually inputting vendor, model, and version, we use automatic scanning
-    vendor = model = version = None
-
-    # Perform network scan and get device info
+    # Step 4: Ask for network range
     network_range = input(
-        "📍 Enter the network range to scan (default is 192.168.1.0/24): "
-    ).strip()
+        "📍 Enter network range (default: 192.168.1.0/24): ").strip()
     network_range = network_range or CONFIG.get("default_network_range",
                                                 "192.168.1.0/24")
 
-    scanner = NetworkScanner(network_range=network_range)
-    devices = scanner.perform_scan()
+    # Step 5: Perform initial scan to attempt firmware CVE lookup
+    base_scanner = NetworkScanner(network_range=network_range)
+    scanned_devices = base_scanner.perform_scan()
 
-    if devices:
-        # Automatically take the first device details (assuming this is the router)
-        first_device = devices[0]
-        vendor = first_device["vendor"]
-        model = first_device["model"]
-        version = first_device["version"]
+    if scanned_devices:
+        first_device = scanned_devices[0]
+        vendor = first_device.get("vendor")
+        model = first_device.get("model")
+        version = first_device.get("version")
 
-        print(
-            f"✅ Detected router details from scan: Vendor={vendor}, Model={model}, Version={version}"
-        )
+        if vendor and model and version:
+            print(
+                f"✅ Found device: Vendor={vendor}, Model={model}, Version={version}"
+            )
+            print("🔍 Checking firmware CVEs...")
+            check_firmware(vendor, model, version)
+            report["firmware_check"] = {
+                "vendor": vendor,
+                "model": model,
+                "version": version,
+            }
+        else:
+            log_warn(
+                "⚠️ Incomplete device info — skipping firmware CVE check.")
     else:
-        log_warn(
-            "No devices found in the network scan. Please check the network configuration."
-        )
+        log_warn("⚠️ No devices found during scan.")
 
-    if vendor and model and version:
-        print("🔍 Checking firmware CVEs...")
-        check_firmware(vendor, model, version)
-        report["firmware_check"] = {
-            "vendor": vendor,
-            "model": model,
-            "version": version,
-        }
+    # Step 6: Check user access level
+    user_level, router_info = check_user_level()
 
-    # Determine user access level
-    user_access_level = check_user_level()
-
-    if user_access_level == "admin":
-        print("⚡ Admin detected. Proceeding with full network scan...")
-
+    if user_level == "admin":
+        print("🛠 Admin access confirmed. Running advanced scan.")
         services = input(
             "🧰 Enter comma-separated services to filter (e.g., ssh,http): "
         ).strip()
-        service_filter = services.split(",") if services else None
+        service_filter = [s.strip()
+                          for s in services.split(",")] if services else None
 
         scanner = NetworkScanner(network_range=network_range,
                                  service_filter=service_filter)
-        result = scanner.perform_scan()
-        report["network_scan"] = result or []
+        report["network_scan"] = scanner.perform_scan() or []
 
     else:
-        print("⚠️ Normal user detected. Checking for monitor mode dongle...")
-
+        print("👤 Normal user detected.")
         use_monitor = input(
-            "🔌 Do you have a monitor mode dongle (Y/N)? ").strip().lower()
-        if use_monitor == 'y':
-            interface = input(
-                "   Enter monitor interface name (e.g., wlan1mon): ").strip()
-            if interface:
-                monitor = WiFiMonitor(interface=interface)
-                wifi_result = monitor.scan()
-                report["wifi_scan"] = wifi_result or []
-            else:
-                print(
-                    "⚠️ No interface name provided. Skipping monitor mode scan."
-                )
-        else:
-            print("🔍 Doing a basic user scan...")
-            scanner = NetworkScanner(network_range=network_range,
-                                     service_filter=None)
-            result = scanner.perform_scan()
-            report["network_scan"] = result or []
+            "📡 Do you have a monitor mode dongle? (Y/N): ").strip().lower()
 
-    # Save report
+        if use_monitor == "y":
+            interface = input(
+                "🔌 Enter monitor interface (press Enter to use default): "
+            ).strip()
+            interface = interface or CONFIG.get("monitor_interface")
+
+            if interface:
+                wifi_scanner = WiFiMonitor(interface)
+                report["wifi_scan"] = wifi_scanner.scan() or []
+            else:
+                print("⚠️ No monitor interface provided. Skipping Wi-Fi scan.")
+        else:
+            print("🔍 Performing fallback basic network scan...")
+            fallback_scanner = NetworkScanner(network_range)
+            report["network_scan"] = fallback_scanner.perform_scan() or []
+
+    # Step 7: Save the full report
     save_report(report)
 
 
