@@ -1,7 +1,31 @@
-Router Firmware Security Assistant (RFSA)
-=========================================
+<p align="center">
+  <img src="./assets/images/logo.png" alt="RFSA Logo" width="200" />
+</p>
 
-Enhancing network security through comprehensive router and Wi-Fi analysis
+<h1 align="center">Router Firmware Security Assistant (RFSA)</h1>
+
+<p align="center"><em>Enhancing network security through comprehensive router and Wi-Fi analysis</em></p>
+
+<p align="center">
+  <a href="https://github.com/SYN606/RFSA-Tool">
+    <img src="https://img.shields.io/badge/View_on-GitHub-181717?style=for-the-badge&logo=github" alt="View on GitHub"/>
+  </a>
+  <a href="https://rfsa.pages.dev/">
+    <img src="https://img.shields.io/badge/Read-Docs-blue?style=for-the-badge&logo=readthedocs" alt="Docs"/>
+  </a>
+  <a href="https://yourwebsite.com/demo">
+    <img src="https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=play" alt="Demo"/>
+  </a>
+  <a href="https://www.python.org/downloads/release/python-380/">
+    <img src="https://img.shields.io/badge/Python-3.8+-yellow?style=for-the-badge&logo=python" alt="Python Version"/>
+  </a>
+  <img src="https://img.shields.io/badge/Platform-Linux-important?style=for-the-badge&logo=linux" alt="Platform"/>
+  <a href="https://github.com/SYN606/RFSA-Tool/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&logo=open-source-initiative" alt="License"/>
+  </a>
+  <img src="https://img.shields.io/badge/PRs-Welcome-blueviolet?style=for-the-badge&logo=git" alt="PRs Welcome"/>
+</p>
+
 
 🔍 Overview
 -----------
