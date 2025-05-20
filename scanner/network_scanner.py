@@ -19,8 +19,16 @@ class NetworkScanner:
             "default_network_range", "192.168.1.0/24")
         self.service_filter = service_filter
         self.devices = []
-        self.nm = nmap.PortScanner()
-        self.mac_lookup = MacLookup()
+        try:
+            self.nm = nmap.PortScanner()
+        except Exception as e:
+            log_warn(f"nmap.PortScanner init failed: {e}")
+            self.nm = None
+        try:
+            self.mac_lookup = MacLookup()
+        except Exception as e:
+            log_warn(f"MacLookup init failed: {e}")
+            self.mac_lookup = None
 
     def scan_devices(self):
         """
@@ -32,7 +40,12 @@ class NetworkScanner:
         arp = ARP(pdst=self.network_range)
         packet = ether / arp
 
-        answered_list, _ = srp(packet, timeout=3, verbose=False)
+        try:
+            answered_list, _ = srp(packet, timeout=3, verbose=False)
+        except Exception as e:
+            print(Fore.RED + f"❌ ARP scan failed: {e}")
+            log_warn(f"ARP scan failed: {e}")
+            return
 
         if not answered_list:
             print(Fore.RED + "❌ No devices responded.")
@@ -49,10 +62,12 @@ class NetworkScanner:
                 continue
             seen_macs.add(mac)
 
-            try:
-                vendor = self.mac_lookup.lookup(mac)
-            except Exception:
-                vendor = "Unknown"
+            vendor = "Unknown"
+            if self.mac_lookup:
+                try:
+                    vendor = self.mac_lookup.lookup(mac)
+                except Exception:
+                    vendor = "Unknown"
 
             device_info = {
                 'ip': ip,
@@ -72,6 +87,9 @@ class NetworkScanner:
         """
         if not self.devices:
             print(Fore.YELLOW + "\n⚠️ No devices to scan for services.")
+            return
+        if not self.nm:
+            print(Fore.RED + "❌ nmap is not available. Skipping service scan.")
             return
 
         print(Fore.CYAN +

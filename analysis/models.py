@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
@@ -20,11 +20,15 @@ class FirmwareSignature(Base):
     __tablename__ = "firmware_signatures"
 
     id = Column(Integer, primary_key=True)
-    vendor = Column(String(100), nullable=False)
-    model = Column(String(100), nullable=True)
-    version = Column(String(100), nullable=False)
+    vendor = Column(String(100), nullable=False, index=True)
+    model = Column(String(100), nullable=True, index=True)
+    version = Column(String(100), nullable=False, index=True)
     cve_id = Column(String(50), nullable=True)
     description = Column(Text)
+
+    __table_args__ = (
+        Index('idx_vendor_model_version', "vendor", "model", "version"),
+    )
 
 
 # === Metadata Table for Storing Last Sync, Version etc. ===

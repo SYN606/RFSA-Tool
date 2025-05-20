@@ -3,6 +3,7 @@ from scapy.layers.dot11 import Dot11, Dot11Elt
 from config.settings import CONFIG
 from utils.logger import log_info
 from colorama import Fore, init
+import os
 
 init(autoreset=True)
 
@@ -21,12 +22,22 @@ class WiFiMonitor:
         if not self.interface:
             print(Fore.RED + "❌ No monitor mode interface specified.")
             return []
+        if not os.geteuid() == 0:
+            print(Fore.RED + "❌ Root privileges required for Wi-Fi scanning.")
+            return []
+        if not os.path.exists(f"/sys/class/net/{self.interface}"):
+            print(Fore.RED + f"❌ Interface '{self.interface}' does not exist.")
+            return []
 
         print(
             Fore.CYAN +
             f"🔍 Scanning for networks in monitor mode on '{self.interface}'...\n"
         )
-        sniff(iface=self.interface, prn=self.packet_handler, timeout=duration)
+        try:
+            sniff(iface=self.interface, prn=self.packet_handler, timeout=duration)
+        except Exception as e:
+            print(Fore.RED + f"❌ Error during sniffing: {e}")
+            return []
 
         result = []
 

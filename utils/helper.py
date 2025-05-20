@@ -1,7 +1,7 @@
 import netifaces
 import nmap
 import requests
-
+import re
 
 def get_default_gateway():
     """
@@ -14,7 +14,6 @@ def get_default_gateway():
     except Exception as e:
         print(f"[!] Failed to detect default gateway: {e}")
         return None
-
 
 class NetworkScanner:
     def __init__(self, network_range, service_filter=None):
@@ -59,7 +58,7 @@ class NetworkScanner:
 
     def get_model_info(self, host):
         """
-        Extract model info from a banner.
+        Extract model info from a banner using regex.
         """
         banner = self.get_banner_info(host, 80)
         if banner:
@@ -68,7 +67,7 @@ class NetworkScanner:
 
     def get_version_info(self, host):
         """
-        Extract version info from a banner.
+        Extract version info from a banner using regex.
         """
         banner = self.get_banner_info(host, 80)
         if banner:
@@ -77,19 +76,20 @@ class NetworkScanner:
 
     def extract_model_from_banner(self, banner):
         """
-        Naive model extraction from HTTP banner.
-        You should improve this with regex patterns or HTML parsing.
+        Improved model extraction using regex.
         """
-        if "Model" in banner:
-            return banner.split("Model")[1].split()[0].strip(":<>/#\\\"'")
+        match = re.search(r"Model[:\s]*([A-Za-z0-9\-_.]+)", banner, re.IGNORECASE)
+        if match:
+            return match.group(1)
         return "Unknown Model"
 
     def extract_version_from_banner(self, banner):
         """
-        Naive version extraction from HTTP banner.
+        Improved version extraction using regex.
         """
-        if "Version" in banner:
-            return banner.split("Version")[1].split()[0].strip(":<>/#\\\"'")
+        match = re.search(r"Version[:\s]*([A-Za-z0-9\-_.]+)", banner, re.IGNORECASE)
+        if match:
+            return match.group(1)
         return "Unknown Version"
 
     def get_vendor_from_mac(self, mac):
@@ -97,7 +97,6 @@ class NetworkScanner:
         Very basic vendor detection using static OUI lookup.
         Extend with a full MAC-to-vendor database in real apps.
         """
-        # Normalize prefix to first 3 bytes (OUI)
         prefix = mac.upper().replace(":", "")[:6]
         oui_dict = {
             "001A2B": "Cisco",

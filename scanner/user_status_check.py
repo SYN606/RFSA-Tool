@@ -110,7 +110,11 @@ def check_user_level():
         print(Fore.CYAN + "🔍 Scanning local network for router details...")
         subnet_guess = f"{router_ip}/24"
         scanner = NetworkScanner(network_range=subnet_guess)
-        devices = scanner.perform_scan()
+        try:
+            devices = scanner.perform_scan()
+        except Exception as e:
+            log_warn(f"Network scan for router info failed: {e}")
+            devices = []
 
         for device in devices:  # type: ignore
             if device.get("ip") == router_ip:

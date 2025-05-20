@@ -11,7 +11,12 @@ from config.settings import TARGET_VENDORS, FEED_FILE_PATH, NVD_FEED_URL
 
 def download_feed(url, filename=FEED_FILE_PATH):
     print("⬇️ Downloading NVD feed...")
-    r = requests.get(url, stream=True)
+    try:
+        r = requests.get(url, stream=True, timeout=30)
+        r.raise_for_status()
+    except Exception as e:
+        print(f"❌ Failed to download feed: {e}")
+        raise
     with open(filename, "wb") as f:
         for chunk in tqdm(r.iter_content(8192), desc="Downloading"):
             f.write(chunk)
@@ -20,8 +25,12 @@ def download_feed(url, filename=FEED_FILE_PATH):
 
 def extract_feed(filepath):
     print("📦 Extracting feed...")
-    with gzip.open(filepath, 'rt', encoding='utf-8') as f:
-        return json.load(f)
+    try:
+        with gzip.open(filepath, 'rt', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"❌ Failed to extract feed: {e}")
+        raise
 
 
 def parse_and_store(data):
@@ -59,6 +68,9 @@ def parse_and_store(data):
                             session.commit()
                             added += 1
                         except IntegrityError:
+                            session.rollback()
+                        except Exception as e:
+                            print(f"❌ DB error: {e}")
                             session.rollback()
 
     session.close()
@@ -113,27 +125,33 @@ def update_last_sync():
         session.commit()
     except IntegrityError:
         session.rollback()
+    except Exception as e:
+        print(f"❌ Failed to update metadata: {e}")
+        session.rollback()
     session.close()
 
 
 def sync_nvd_feed():
-    init_db()
-    if not is_update_needed():
-        print("⏳ Last update was within 7 days, skipping sync.")
-        return
+    try:
+        init_db()
+        if not is_update_needed():
+            print("⏳ Last update was within 7 days, skipping sync.")
+            return
 
-    print("🔄 Syncing the NVD Feed...")
+        print("🔄 Syncing the NVD Feed...")
 
-    zip_path = download_feed(NVD_FEED_URL)
-    data = extract_feed(zip_path)
-    parse_and_store(data)
+        zip_path = download_feed(NVD_FEED_URL)
+        data = extract_feed(zip_path)
+        parse_and_store(data)
 
-    update_last_sync()
+        update_last_sync()
 
-    os.remove(zip_path)
-    print("🧹 Removed temporary files.")
+        os.remove(zip_path)
+        print("🧹 Removed temporary files.")
 
-    print(f"🧠 Sync complete at {datetime.now()}")
+        print(f"🧠 Sync complete at {datetime.now()}")
+    except Exception as e:
+        print(f"❌ NVD sync failed: {e}")
 
 
 if __name__ == "__main__":

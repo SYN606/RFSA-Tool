@@ -64,7 +64,7 @@ def perform_admin_scan():
 
 
 if __name__ == "__main__":
-    user_access_level = check_user_level()
+    user_access_level, _ = check_user_level()
 
     if user_access_level == "admin":
         perform_admin_scan()
