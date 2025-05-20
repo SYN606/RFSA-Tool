@@ -13,9 +13,6 @@
   <a href="https://rfsa.pages.dev/">
     <img src="https://img.shields.io/badge/Read-Docs-blue?style=for-the-badge&logo=readthedocs" alt="Docs"/>
   </a>
-  <a href="https://yourwebsite.com/demo">
-    <img src="https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=play" alt="Demo"/>
-  </a>
   <a href="https://www.python.org/downloads/release/python-380/">
     <img src="https://img.shields.io/badge/Python-3.8+-yellow?style=for-the-badge&logo=python" alt="Python Version"/>
   </a>
